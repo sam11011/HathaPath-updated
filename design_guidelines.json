@@ -1,0 +1,159 @@
+{
+  "identity": {
+    "name": "Hatha Path",
+    "tone": "Serene, Authentic, Grounded, Spiritual, Elegant",
+    "target_audience": "Spiritual seekers, Classical Hatha Yoga practitioners",
+    "theme_mode": "light"
+  },
+  "typography": {
+    "font_family": {
+      "heading": "Playfair Display, serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl font-medium tracking-tight leading-[1.1]",
+      "h2": "text-4xl md:text-5xl font-medium tracking-tight leading-tight",
+      "h3": "text-2xl md:text-3xl font-medium tracking-normal",
+      "body": "text-base md:text-lg text-stone-600 leading-relaxed",
+      "caption": "text-sm uppercase tracking-widest text-stone-500 font-bold"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap');"
+    ]
+  },
+  "colors": {
+    "palette": {
+      "background": "#F4EFE8",
+      "foreground": "#2C2E2D",
+      "primary": "#2C2E2D",
+      "secondary": "#6F9085",
+      "accent": "#C66B4D",
+      "muted": "#E6E0D9",
+      "border": "#D6CEC5",
+      "card": "#FFFFFF",
+      "card_foreground": "#2C2E2D"
+    },
+    "tailwind_config": {
+      "colors": {
+        "stone": {
+          "50": "#FAF9F6",
+          "100": "#F4EFE8",
+          "200": "#E6E0D9",
+          "300": "#D6CEC5",
+          "800": "#44403C",
+          "900": "#2C2E2D"
+        },
+        "sage": {
+          "500": "#6F9085",
+          "600": "#5B6342"
+        },
+        "terracotta": {
+          "500": "#C66B4D",
+          "600": "#A85338"
+        }
+      }
+    }
+  },
+  "layout": {
+    "spacing": {
+      "container": "max-w-7xl mx-auto px-6 md:px-12",
+      "section_padding": "py-24 md:py-32",
+      "element_gap": "gap-8 md:gap-12"
+    },
+    "grid_system": {
+      "landing": "grid grid-cols-1 md:grid-cols-12 gap-8",
+      "dashboard": "grid grid-cols-1 md:grid-cols-4 gap-6"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-full px-8 py-3 text-lg font-medium transition-all duration-300 shadow-sm hover:shadow-md",
+      "secondary": "bg-transparent border border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white rounded-full px-8 py-3 text-lg font-medium transition-all duration-300",
+      "ghost": "text-stone-900 hover:text-terracotta-500 font-medium hover:underline underline-offset-4 transition-colors"
+    },
+    "cards": {
+      "practice": "group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-200/50",
+      "feature": "bg-stone-100/50 p-8 rounded-xl border border-stone-200"
+    },
+    "inputs": {
+      "default": "bg-white border-stone-200 focus:border-terracotta-500 focus:ring-terracotta-500/20 rounded-lg px-4 py-3"
+    }
+  },
+  "sections": {
+    "hero": {
+      "type": "video_background",
+      "video_url": "https://customer-assets.emergentagent.com/job_hatha-path/artifacts/of2tnp3r_1-.mp4",
+      "overlay": "bg-black/30",
+      "content_alignment": "center",
+      "elements": ["Typewriter Effect Quote", "CTA Button"]
+    },
+    "path": {
+      "layout": "asymmetric_split",
+      "image_style": "rounded-2xl shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-700"
+    },
+    "practices": {
+      "layout": "grid_3_col",
+      "card_style": "image_top_text_bottom_minimal"
+    },
+    "intention": {
+      "layout": "centered_portrait",
+      "image_shape": "rounded-full md:rounded-t-full md:rounded-b-none aspect-[3/4] object-cover"
+    }
+  },
+  "assets": {
+    "images": [
+      {
+        "section": "practices_angamardana",
+        "url": "https://images.unsplash.com/photo-1660171465646-23a749459e74?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHw0fHx5b2dhJTIwcG9zZXMlMjBoYXRoYSUyMHlvZ2ElMjBzdXJ5YSUyMGtyaXlhJTIwYW5nYW1hcmRhbmF8ZW58MHx8fHwxNzczNDIyMjAyfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Angamardana Practice"
+      },
+      {
+        "section": "practices_suryakriya",
+        "url": "https://images.unsplash.com/photo-1660171470455-44b319313750?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHx5b2dhJTIwcG9zZXMlMjBoYXRoYSUyMHlvZ2ElMjBzdXJ5YSUyMGtyaXlhJTIwYW5nYW1hcmRhbmF8ZW58MHx8fHwxNzczNDIyMjAyfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Surya Kriya Practice"
+      },
+      {
+        "section": "practices_yogasanas",
+        "url": "https://images.unsplash.com/photo-1758274529488-de77fa2e7773?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwyfHxtZWRpdGF0aW9uJTIweW9nYSUyMG5hdHVyZSUyMHNlcmVuZSUyMGF0bW9zcGhlcmV8ZW58MHx8fHwxNzczNDIyMjAzfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Yogasanas Practice"
+      },
+      {
+        "section": "teacher_portrait",
+        "url": "https://images.unsplash.com/photo-1762950887957-78d2cc56d88c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjB5b2dhJTIwdGVhY2hlciUyMHBvcnRyYWl0JTIwc2VyZW5lJTIwc3Bpcml0dWFsfGVufDB8fHx8MTc3MzQyMjIwMnww&ixlib=rb-4.1.0&q=85",
+        "alt": "Teacher Portrait"
+      },
+      {
+        "section": "about_background",
+        "url": "https://images.unsplash.com/photo-1758274539654-23fa349cc090?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIweW9nYSUyMG5hdHVyZSUyMHNlcmVuZSUyMGF0bW9zcGhlcmV8ZW58MHx8fHwxNzczNDIyMjAzfDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Serene Atmosphere"
+      }
+    ],
+    "icons": "lucide-react"
+  },
+  "motion": {
+    "library": "framer-motion",
+    "guidelines": {
+      "page_load": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }}",
+      "scroll_reveal": "initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: 'easeOut' }}",
+      "typewriter": "Custom hook or library for 'Yoga is a technology...' quote"
+    }
+  },
+  "admin_panel": {
+    "structure": [
+      "Login Screen (Simple, Clean)",
+      "Dashboard (Sidebar Nav)",
+      "Contacts Management (Table with shadcn/ui)",
+      "Programs Management (Form + List)"
+    ],
+    "style": "Clean, utilitarian but using the same font family (Manrope) and softer borders. Avoid harsh contrasts."
+  },
+  "universal_guidelines": [
+    "Use 2-3x more spacing than feels comfortable.",
+    "Dark colors look good when used independently without gradients.",
+    "Create depth through layered design elements.",
+    "Do not use generic centered layouts everywhere.",
+    "Use 'sonner' for toast notifications.",
+    "Ensure all interactive elements have data-testid attributes."
+  ]
+}
