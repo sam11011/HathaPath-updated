@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -12,9 +13,14 @@ import uuid
 from datetime import datetime, timezone
 import jwt
 import bcrypt
+import shutil
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Create uploads directory for brochures
+UPLOADS_DIR = ROOT_DIR / 'uploads'
+UPLOADS_DIR.mkdir(exist_ok=True)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -276,6 +282,53 @@ async def get_contact_submissions(username: str = Depends(verify_token)):
         if isinstance(s.get('created_at'), str):
             s['created_at'] = datetime.fromisoformat(s['created_at'])
     return submissions
+
+# Brochure Upload
+@api_router.post("/brochure/upload")
+async def upload_brochure(file: UploadFile = File(...), username: str = Depends(verify_token)):
+    # Validate file type
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+    
+    # Save file
+    file_path = UPLOADS_DIR / "brochure.pdf"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Update brochure info in database
+    brochure_info = {
+        "filename": file.filename,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(),
+        "uploaded_by": username
+    }
+    await db.brochure_info.delete_many({})
+    await db.brochure_info.insert_one(brochure_info)
+    
+    return {"message": "Brochure uploaded successfully", "filename": file.filename}
+
+@api_router.get("/brochure/info")
+async def get_brochure_info():
+    info = await db.brochure_info.find_one({}, {"_id": 0})
+    if not info:
+        return {"exists": False}
+    
+    file_path = UPLOADS_DIR / "brochure.pdf"
+    return {
+        "exists": file_path.exists(),
+        "filename": info.get("filename"),
+        "uploaded_at": info.get("uploaded_at")
+    }
+
+@api_router.get("/brochure/file")
+async def download_brochure():
+    file_path = UPLOADS_DIR / "brochure.pdf"
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Brochure not found")
+    return FileResponse(
+        path=file_path,
+        filename="HathaPath-Brochure.pdf",
+        media_type="application/pdf"
+    )
 
 # Include the router in the main app
 app.include_router(api_router)

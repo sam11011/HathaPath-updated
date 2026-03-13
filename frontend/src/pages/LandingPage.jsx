@@ -430,16 +430,21 @@ const ContactSection = ({ settings }) => {
     try {
       await axios.post(`${API}/brochure/download`, { name: brochureName, email: brochureEmail });
       toast.success('Thank you! Your brochure is downloading...');
-      // Simulate download - in production, this would be a real PDF URL
+      
+      // Download the actual brochure file
       const link = document.createElement('a');
-      link.href = '#';
+      link.href = `${API}/brochure/file`;
       link.download = 'HathaPath-Brochure.pdf';
-      // For demo purposes, we'll just show a success message
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
       setBrochureOpen(false);
       setBrochureName('');
       setBrochureEmail('');
     } catch (error) {
-      toast.error('Failed to process download. Please try again.');
+      toast.error('Brochure not available yet. Please try again later.');
     }
   };
 

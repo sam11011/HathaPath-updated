@@ -16,6 +16,9 @@ import {
   X,
   Menu,
   Download,
+  Upload,
+  FileText,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,6 +52,8 @@ const AdminDashboard = () => {
   const [programs, setPrograms] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [downloads, setDownloads] = useState([]);
+  const [brochureInfo, setBrochureInfo] = useState(null);
+  const [uploadingBrochure, setUploadingBrochure] = useState(false);
 
   // Form states
   const [editingProgram, setEditingProgram] = useState(null);
@@ -75,16 +80,18 @@ const AdminDashboard = () => {
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      const [settingsRes, programsRes, contactsRes, downloadsRes] = await Promise.all([
+      const [settingsRes, programsRes, contactsRes, downloadsRes, brochureRes] = await Promise.all([
         axios.get(`${API}/settings`),
         axios.get(`${API}/programs`),
         axios.get(`${API}/contact/submissions`, { headers }),
         axios.get(`${API}/brochure/downloads`, { headers }),
+        axios.get(`${API}/brochure/info`),
       ]);
       setSettings(settingsRes.data);
       setPrograms(programsRes.data);
       setContacts(contactsRes.data);
       setDownloads(downloadsRes.data);
+      setBrochureInfo(brochureRes.data);
     } catch (error) {
       if (error.response?.status === 401) {
         localStorage.removeItem('adminToken');
@@ -144,8 +151,37 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleBrochureUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      toast.error('Please upload a PDF file');
+      return;
+    }
+
+    setUploadingBrochure(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      await axios.post(`${API}/brochure/upload`, formData, {
+        headers: {
+          ...headers,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      toast.success('Brochure uploaded successfully!');
+      fetchAllData();
+    } catch (error) {
+      toast.error('Failed to upload brochure');
+    }
+    setUploadingBrochure(false);
+  };
+
   const menuItems = [
     { id: 'settings', label: 'Site Settings', icon: Settings },
+    { id: 'brochure', label: 'Brochure', icon: FileText },
     { id: 'programs', label: 'Programs', icon: Calendar },
     { id: 'contacts', label: 'Contact Messages', icon: MessageSquare },
     { id: 'downloads', label: 'Brochure Downloads', icon: Download },
@@ -292,6 +328,80 @@ const AdminDashboard = () => {
                     Save Changes
                   </Button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Brochure Upload Tab */}
+          {activeTab === 'brochure' && (
+            <div data-testid="brochure-tab">
+              <h1 className="font-display text-3xl text-charcoal mb-8">Brochure Management</h1>
+              
+              <div className="admin-card p-6 max-w-2xl">
+                <h2 className="font-display text-xl text-charcoal mb-6">Upload Brochure PDF</h2>
+                
+                {/* Current Brochure Status */}
+                <div className="mb-6 p-4 bg-sand-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-8 h-8 text-sage-500" />
+                    <div>
+                      {brochureInfo?.exists ? (
+                        <>
+                          <p className="font-medium text-charcoal flex items-center gap-2">
+                            <Check className="w-4 h-4 text-green-600" />
+                            Brochure Uploaded
+                          </p>
+                          <p className="text-sm text-charcoal/60">
+                            {brochureInfo.filename} • Uploaded {brochureInfo.uploaded_at ? new Date(brochureInfo.uploaded_at).toLocaleDateString() : ''}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-medium text-charcoal">No Brochure Uploaded</p>
+                          <p className="text-sm text-charcoal/60">Upload a PDF file to enable downloads</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Upload Area */}
+                <div className="border-2 border-dashed border-sand-300 rounded-xl p-8 text-center hover:border-terracotta-400 transition-colors">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleBrochureUpload}
+                    className="hidden"
+                    id="brochure-upload"
+                    data-testid="brochure-file-input"
+                  />
+                  <label
+                    htmlFor="brochure-upload"
+                    className="cursor-pointer block"
+                  >
+                    <Upload className="w-12 h-12 text-charcoal/40 mx-auto mb-4" />
+                    <p className="font-medium text-charcoal mb-2">
+                      {uploadingBrochure ? 'Uploading...' : 'Click to upload brochure'}
+                    </p>
+                    <p className="text-sm text-charcoal/50">PDF files only (max 10MB)</p>
+                  </label>
+                </div>
+
+                {/* Preview/Download Current */}
+                {brochureInfo?.exists && (
+                  <div className="mt-6">
+                    <a
+                      href={`${API}/brochure/file`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-sage-500 hover:bg-sage-600 text-white px-6 py-3 rounded-full font-medium transition-colors"
+                      data-testid="preview-brochure-btn"
+                    >
+                      <Download className="w-4 h-4" />
+                      Preview Current Brochure
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           )}
