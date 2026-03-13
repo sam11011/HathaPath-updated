@@ -74,12 +74,13 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+          {/* Logo - Enlarged for visibility */}
           <a href="/" className="flex items-center" data-testid="logo">
             <img 
               src={LOGO_URL} 
               alt="Hatha Path" 
-              className="h-12 md:h-14 w-auto object-contain"
+              className="h-16 md:h-20 w-auto object-contain brightness-0 invert"
+              style={{ filter: isScrolled ? 'brightness(0)' : 'brightness(0) invert(1)' }}
             />
           </a>
 
@@ -146,7 +147,7 @@ const Header = () => {
 // Hero Section
 const HeroSection = () => {
   const quote = "Yoga is a technology to go beyond all compulsions, and access the divinity present in every human being.";
-  const { displayText, isComplete } = useTypewriter(quote, 40);
+  const { displayText, isComplete } = useTypewriter(quote, 80); // Slower typing speed
 
   return (
     <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden" data-testid="hero-section">
@@ -166,17 +167,11 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-black/40"></div>
       </div>
 
-      {/* Content */}
+      {/* Content - Text only, no logo */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        {/* Logo in Hero */}
-        <div className="mb-8 animate-fade-in">
-          <img 
-            src={LOGO_URL} 
-            alt="Hatha Path" 
-            className="h-24 md:h-32 lg:h-40 w-auto mx-auto object-contain"
-            data-testid="hero-logo"
-          />
-        </div>
+        <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-white mb-6 animate-fade-in drop-shadow-lg" data-testid="hero-title">
+          Hatha Path
+        </h1>
         
         <p className="font-display text-lg md:text-xl text-white/90 italic mb-10 delay-200 animate-fade-in" data-testid="hero-subtitle">
           Classical Hatha Yoga in its authentic form
@@ -631,12 +626,13 @@ const Footer = () => {
     <footer className="footer-gradient py-12" data-testid="footer">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Logo */}
+          {/* Logo - Enlarged for visibility */}
           <div className="flex items-center">
             <img 
               src={LOGO_URL} 
               alt="Hatha Path" 
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-14 md:h-16 w-auto object-contain"
+              style={{ filter: 'brightness(0.3)' }}
               data-testid="footer-logo"
             />
           </div>
