@@ -74,12 +74,12 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex items-center justify-between h-20">
-          {/* Logo - Enlarged for visibility */}
+          {/* Logo - Extra large for visibility */}
           <a href="/" className="flex items-center" data-testid="logo">
             <img 
               src={LOGO_URL} 
               alt="Hatha Path" 
-              className="h-16 md:h-20 w-auto object-contain brightness-0 invert"
+              className="h-20 md:h-28 w-auto object-contain"
               style={{ filter: isScrolled ? 'brightness(0)' : 'brightness(0) invert(1)' }}
             />
           </a>
@@ -626,12 +626,12 @@ const Footer = () => {
     <footer className="footer-gradient py-12" data-testid="footer">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Logo - Enlarged for visibility */}
+          {/* Logo - Extra large for visibility */}
           <div className="flex items-center">
             <img 
               src={LOGO_URL} 
               alt="Hatha Path" 
-              className="h-14 md:h-16 w-auto object-contain"
+              className="h-20 md:h-24 w-auto object-contain"
               style={{ filter: 'brightness(0.3)' }}
               data-testid="footer-logo"
             />
