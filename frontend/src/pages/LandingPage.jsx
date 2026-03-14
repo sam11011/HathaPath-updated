@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Menu, X, MapPin, Instagram, MessageCircle, Download, ArrowRight, Phone, Mail } from 'lucide-react';
+import { Menu, X, MapPin, Download, ArrowRight, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,15 +13,35 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 // Assets
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_hatha-path/artifacts/7j1ruiak_Untitled_Artwork-4.png";
 const VIDEO_URL = "https://customer-assets.emergentagent.com/job_hatha-path/artifacts/of2tnp3r_1-.mp4";
+const SADHGURU_IMAGE = "https://images.unsplash.com/photo-1545389336-cf090694435e?w=600&q=80";
 
-// Typewriter Hook
-const useTypewriter = (text, speed = 50) => {
+// Social Icons
+const WhatsAppIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
+const InstagramIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </svg>
+);
+
+// Typewriter Hook - Very Slow
+const useTypewriter = (text, speed = 100) => {
   const [displayText, setDisplayText] = useState('');
   const [isComplete, setIsComplete] = useState(false);
 
@@ -45,10 +66,148 @@ const useTypewriter = (text, speed = 50) => {
   return { displayText, isComplete };
 };
 
+// Track page visit
+const trackVisit = async () => {
+  try {
+    await axios.post(`${API}/analytics/visit`);
+  } catch (e) {
+    // Silent fail
+  }
+};
+
+// Slide-out Menu Component
+const SlideMenu = ({ isOpen, onClose }) => {
+  const [practicesOpen, setPracticesOpen] = useState(false);
+
+  const menuItems = [
+    { name: 'Home', href: '/', type: 'link' },
+    { name: 'About Us', href: '#about', type: 'anchor' },
+    { name: 'Workshops', href: '/workshops', type: 'link' },
+    { name: 'Practices', href: '#practices', type: 'submenu' },
+    { name: 'FAQ', href: '#faq', type: 'anchor' },
+    { name: 'Contact Us', href: '#contact', type: 'anchor' },
+  ];
+
+  const practicesList = [
+    { name: 'Surya Kriya', href: '#surya-kriya' },
+    { name: 'Yogasanas', href: '#yogasanas' },
+    { name: 'Angamardana', href: '#angamardana' },
+    { name: 'Bhuta Shuddhi', href: '#bhuta-shuddhi' },
+    { name: 'Wellness Modules', href: '#wellness' },
+    { name: 'Corporate / Private Sessions', href: '#contact' },
+    { name: 'Yoga for Children', href: '#contact' },
+  ];
+
+  const handleClick = (item) => {
+    onClose();
+  };
+
+  return (
+    <>
+      {/* Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Slide Menu */}
+      <div 
+        className={`fixed top-0 left-0 h-full w-80 bg-[#4A5D52] z-50 transform transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        data-testid="slide-menu"
+      >
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          className="absolute top-6 left-6 text-white/70 hover:text-white transition-colors"
+          data-testid="close-menu-btn"
+        >
+          <X size={28} strokeWidth={1} />
+        </button>
+
+        {/* Menu Items */}
+        <nav className="pt-24 px-8">
+          {menuItems.map((item) => (
+            <div key={item.name}>
+              {item.type === 'submenu' ? (
+                <div>
+                  <button
+                    onClick={() => setPracticesOpen(!practicesOpen)}
+                    className="w-full flex items-center justify-between py-4 text-white/90 hover:text-white font-display text-2xl italic transition-colors"
+                    data-testid="practices-menu-btn"
+                  >
+                    {item.name}
+                    {practicesOpen ? <Minus size={20} /> : <Plus size={20} />}
+                  </button>
+                  {practicesOpen && (
+                    <div className="pl-4 pb-4 space-y-3">
+                      {practicesList.map((practice) => (
+                        <a
+                          key={practice.name}
+                          href={practice.href}
+                          onClick={() => handleClick(practice)}
+                          className="block text-white/70 hover:text-white text-lg transition-colors"
+                        >
+                          {practice.name}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : item.type === 'link' ? (
+                <Link
+                  to={item.href}
+                  onClick={() => handleClick(item)}
+                  className="block py-4 text-white/90 hover:text-white font-display text-2xl italic transition-colors"
+                  data-testid={`menu-${item.name.toLowerCase().replace(' ', '-')}`}
+                >
+                  {item.name}
+                </Link>
+              ) : (
+                <a
+                  href={item.href}
+                  onClick={() => handleClick(item)}
+                  className="block py-4 text-white/90 hover:text-white font-display text-2xl italic transition-colors"
+                  data-testid={`menu-${item.name.toLowerCase().replace(' ', '-')}`}
+                >
+                  {item.name}
+                </a>
+              )}
+            </div>
+          ))}
+        </nav>
+
+        {/* Social Icons at bottom */}
+        <div className="absolute bottom-8 left-8 flex gap-4">
+          <a 
+            href="https://wa.me/919876543210" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+          >
+            <WhatsAppIcon className="w-5 h-5 text-white" />
+          </a>
+          <a 
+            href="https://instagram.com/hatha_path" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+          >
+            <InstagramIcon className="w-5 h-5 text-white" />
+          </a>
+        </div>
+      </div>
+    </>
+  );
+};
+
 // Header Component
-const Header = () => {
+const Header = ({ settings }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,96 +217,73 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: 'About', href: '#about' },
-    { name: 'Practice', href: '#practices' },
-    { name: 'Teacher', href: '#intention' },
-    { name: 'Contact', href: '#contact' },
-  ];
-
   return (
-    <header
-      data-testid="header"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-sand-100/95 backdrop-blur-md shadow-sm' : 'bg-black/20 backdrop-blur-sm'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo - Extra large for visibility */}
-          <a href="/" className="flex items-center" data-testid="logo">
-            <img 
-              src={LOGO_URL} 
-              alt="Hatha Path" 
-              className="h-20 md:h-28 w-auto object-contain"
-              style={{ filter: isScrolled ? 'brightness(0)' : 'brightness(0) invert(1)' }}
-            />
-          </a>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8" data-testid="desktop-nav">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`nav-link text-sm font-body ${isScrolled ? 'text-charcoal' : 'text-white'} hover:text-terracotta-400 transition-colors`}
-                data-testid={`nav-${link.name.toLowerCase()}`}
-              >
-                {link.name}
-              </a>
-            ))}
-            <a
-              href="#contact"
-              className="bg-terracotta-500 hover:bg-terracotta-600 text-white px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
-              data-testid="nav-explore-btn"
+    <>
+      <header
+        data-testid="header"
+        className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${
+          isScrolled ? 'bg-sand-100/95 backdrop-blur-md shadow-sm' : 'bg-black/20 backdrop-blur-sm'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="flex items-center justify-between h-24">
+            {/* Hamburger Menu Button */}
+            <button
+              onClick={() => setMenuOpen(true)}
+              className={`p-2 transition-colors ${isScrolled ? 'text-charcoal' : 'text-white'}`}
+              data-testid="hamburger-btn"
             >
-              Explore
+              <Menu size={32} strokeWidth={1.5} />
+            </button>
+
+            {/* Logo - Extra Large */}
+            <a href="/" className="flex items-center" data-testid="logo">
+              <img 
+                src={LOGO_URL} 
+                alt="Hatha Path" 
+                className="h-28 md:h-36 w-auto object-contain"
+                style={{ filter: isScrolled ? 'brightness(0)' : 'brightness(0) invert(1)' }}
+              />
             </a>
-          </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            className={`md:hidden p-2 ${isScrolled ? 'text-charcoal' : 'text-white'}`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            data-testid="mobile-menu-btn"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden mobile-menu absolute top-20 left-0 right-0 border-t border-sand-200" data-testid="mobile-menu">
-          <nav className="flex flex-col p-6 gap-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-charcoal hover:text-terracotta-500 py-2 font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
+            {/* Social Icons */}
+            <div className="flex items-center gap-3">
+              <a 
+                href={`https://wa.me/${settings?.whatsapp?.replace(/\D/g, '') || '919876543210'}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                  isScrolled ? 'bg-green-500 text-white' : 'bg-white/20 text-white hover:bg-white/30'
+                }`}
+                data-testid="header-whatsapp"
               >
-                {link.name}
+                <WhatsAppIcon className="w-5 h-5" />
               </a>
-            ))}
-            <a
-              href="#contact"
-              className="bg-terracotta-500 text-white text-center py-3 rounded-full font-medium mt-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Explore
-            </a>
-          </nav>
+              <a 
+                href={`https://instagram.com/${settings?.instagram || 'hatha_path'}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                  isScrolled ? 'bg-pink-500 text-white' : 'bg-white/20 text-white hover:bg-white/30'
+                }`}
+                data-testid="header-instagram"
+              >
+                <InstagramIcon className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
         </div>
-      )}
-    </header>
+      </header>
+
+      <SlideMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+    </>
   );
 };
 
 // Hero Section
 const HeroSection = () => {
   const quote = "Yoga is a technology to go beyond all compulsions, and access the divinity present in every human being.";
-  const { displayText, isComplete } = useTypewriter(quote, 80); // Slower typing speed
+  const { displayText, isComplete } = useTypewriter(quote, 100);
 
   return (
     <section className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden" data-testid="hero-section">
@@ -163,18 +299,17 @@ const HeroSection = () => {
         >
           <source src={VIDEO_URL} type="video/mp4" />
         </video>
-        {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40"></div>
       </div>
 
-      {/* Content - Text only, no logo */}
+      {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-white mb-6 animate-fade-in drop-shadow-lg" data-testid="hero-title">
+        <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-white mb-3 animate-fade-in drop-shadow-lg" data-testid="hero-title">
           Hatha Path
         </h1>
         
-        <p className="font-display text-lg md:text-xl text-white/90 italic mb-10 delay-200 animate-fade-in" data-testid="hero-subtitle">
-          Classical Hatha Yoga in its authentic form
+        <p className="font-body text-lg md:text-xl text-white/90 mb-12 animate-fade-in" data-testid="hero-subtitle">
+          Classical Yoga for Peak Physical Fitness & Mental Wellbeing
         </p>
 
         {/* Typewriter Quote */}
@@ -191,20 +326,20 @@ const HeroSection = () => {
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center delay-400 animate-fade-in">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
+          <Link
+            to="/workshops"
+            className="bg-terracotta-500 hover:bg-terracotta-600 text-white px-8 py-3.5 rounded-full font-medium transition-all duration-300"
+            data-testid="hero-cta-workshops"
+          >
+            View Workshops
+          </Link>
           <a
             href="#practices"
-            className="bg-terracotta-500 hover:bg-terracotta-600 text-white px-8 py-3.5 rounded-full font-medium transition-all duration-300 btn-animate"
-            data-testid="hero-cta-explore"
+            className="bg-transparent border border-white text-white hover:bg-white hover:text-charcoal px-8 py-3.5 rounded-full font-medium transition-all duration-300"
+            data-testid="hero-cta-practices"
           >
             Explore Practices
-          </a>
-          <a
-            href="#about"
-            className="bg-transparent border border-white text-white hover:bg-white hover:text-charcoal px-8 py-3.5 rounded-full font-medium transition-all duration-300"
-            data-testid="hero-cta-learn"
-          >
-            Learn More
           </a>
         </div>
       </div>
@@ -226,46 +361,38 @@ const AboutSection = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
           {/* Image */}
-          <div className="md:col-span-5">
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1758274539654-23fa349cc090?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIweW9nYSUyMG5hdHVyZSUyMHNlcmVuZSUyMGF0bW9zcGhlcmV8ZW58MHx8fHwxNzczNDIyMjAzfDA&ixlib=rb-4.1.0&q=85"
-                alt="Yoga practice in nature"
-                className="rounded-2xl shadow-2xl image-tilt"
-                style={{ transform: 'rotate(2deg)' }}
-                data-testid="about-image"
-              />
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-sage-500/20 rounded-full blur-2xl"></div>
-            </div>
+          <div className="md:col-span-4">
+            <img
+              src={SADHGURU_IMAGE}
+              alt="Meditation"
+              className="rounded-lg shadow-xl w-full"
+              data-testid="about-image"
+            />
           </div>
 
           {/* Content */}
-          <div className="md:col-span-7">
-            <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-6" data-testid="about-title">
-              The Path of Hatha Yoga
+          <div className="md:col-span-8">
+            <h2 className="font-display text-3xl md:text-4xl text-charcoal mb-6 leading-tight" data-testid="about-title">
+              Learn Classical Hatha Yoga from teachers certified by Sadhguru Gurukulam
             </h2>
-            <p className="text-charcoal/70 text-base md:text-lg leading-relaxed mb-6" data-testid="about-description">
-              Hatha Yoga is the science of using the body to prepare the system for
-              higher dimensions of energy. It is not just exercise; it is a profound
-              process of aligning the inner human system with the cosmic geometry.
-            </p>
-            <p className="text-charcoal/70 text-base md:text-lg leading-relaxed mb-8">
-              Through authentic practices, we focus on establishing a deep balance
-              between body, mind, and energy, allowing life to happen with effortless
-              ease and joy.
+            
+            <div className="w-16 h-0.5 bg-terracotta-500 mb-6"></div>
+            
+            <p className="text-charcoal/70 text-base md:text-lg leading-relaxed mb-6 font-display italic">
+              Surya Kriya, Yogasanas, Pranayama, Bhuta Shuddhi, Bhastrika, Meditations & more
             </p>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-8">
-              <div data-testid="stat-authentic">
-                <p className="font-display text-3xl md:text-4xl text-terracotta-500 mb-1">100%</p>
-                <p className="text-sm uppercase tracking-widest text-charcoal/60 font-medium">Authentic Lineage</p>
-              </div>
-              <div data-testid="stat-holistic">
-                <p className="font-display text-3xl md:text-4xl text-sage-500 mb-1">Holistic</p>
-                <p className="text-sm uppercase tracking-widest text-charcoal/60 font-medium">System Alignment</p>
-              </div>
-            </div>
+            <p className="font-display text-xl md:text-2xl text-sage-600 mb-6 italic">
+              Suitable for Beginners | Age group 14+
+            </p>
+
+            <a
+              href="#contact"
+              className="inline-block bg-[#9A8B7A] hover:bg-[#8A7B6A] text-white px-8 py-3 rounded font-medium transition-all duration-300"
+              data-testid="kids-batch-btn"
+            >
+              Separate batches for Kids.
+            </a>
           </div>
         </div>
       </div>
@@ -277,22 +404,34 @@ const AboutSection = () => {
 const PracticesSection = () => {
   const practices = [
     {
-      id: 'yogasanas',
-      title: 'Yogasanas',
-      description: 'A set of 36 powerful postures to align the system and recalibrate energy towards a higher state of consciousness.',
-      image: 'https://images.unsplash.com/photo-1758274529488-de77fa2e7773?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwyfHxtZWRpdGF0aW9uJTIweW9nYSUyMG5hdHVyZSUyMHNlcmVuZSUyMGF0bW9zcGhlcmV8ZW58MHx8fHwxNzczNDIyMjAzfDA&ixlib=rb-4.1.0&q=85',
-    },
-    {
       id: 'surya-kriya',
       title: 'Surya Kriya',
-      description: 'A potent 21-step process that connects you with the source of energy within the sun, balancing physical and mental states.',
-      image: 'https://images.unsplash.com/photo-1660171470455-44b319313750?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHx5b2dhJTIwcG9zZXMlMjBoYXRoYSUyMHlvZ2ElMjBzdXJ5YSUyMGtyaXlhJTIwYW5nYW1hcmRhbmF8ZW58MHx8fHwxNzczNDIyMjAyfDA&ixlib=rb-4.1.0&q=85',
+      description: 'A potent 21-step yogic practice that activates the solar plexus, bringing tremendous physical and mental wellbeing.',
+      image: 'https://images.unsplash.com/photo-1660171470455-44b319313750?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
+    },
+    {
+      id: 'yogasanas',
+      title: 'Yogasanas',
+      description: 'A set of powerful postures to elevate consciousness and stabilize the mind, emotions and energy system.',
+      image: 'https://images.unsplash.com/photo-1758274529488-de77fa2e7773?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
     },
     {
       id: 'angamardana',
       title: 'Angamardana',
-      description: 'Mastery over the limbs. A series of 31 processes to invigorate the body and reach a peak of physical fitness and mental clarity.',
-      image: 'https://images.unsplash.com/photo-1660171465646-23a749459e74?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHw0fHx5b2dhJTIwcG9zZXMlMjBoYXRoYSUyMHlvZ2ElMjBzdXJ5YSUyMGtyaXlhJTIwYW5nYW1hcmRhbmF8ZW58MHx8fHwxNzczNDIyMjAyfDA&ixlib=rb-4.1.0&q=85',
+      description: 'A series of 31 processes to invigorate the body, reaching peak physical fitness and strength.',
+      image: 'https://images.unsplash.com/photo-1660171465646-23a749459e74?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
+    },
+    {
+      id: 'bhuta-shuddhi',
+      title: 'Bhuta Shuddhi',
+      description: 'The process of cleansing the five elements within the system, bringing harmony to body and mind.',
+      image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
+    },
+    {
+      id: 'wellness',
+      title: 'Wellness Modules',
+      description: 'Specialized programs for managing Diabetes, Obesity, and other lifestyle conditions through yoga.',
+      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?crop=entropy&cs=srgb&fm=jpg&w=600&q=80',
     },
   ];
 
@@ -305,92 +444,105 @@ const PracticesSection = () => {
             Our Practices
           </h2>
           <p className="text-charcoal/60 text-base md:text-lg max-w-2xl mx-auto">
-            Sacred tools for transformation, taught precisely as they have been for thousands of years.
+            Classical Hatha Yoga practices designed by Sadhguru, taught in their authentic form.
           </p>
         </div>
 
         {/* Practice Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {practices.map((practice, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {practices.map((practice) => (
             <div
               key={practice.id}
-              className="practice-card bg-white rounded-2xl overflow-hidden border border-sand-200 shadow-sm"
-              style={{ animationDelay: `${index * 100}ms` }}
+              id={practice.id}
+              className="group bg-sand-100 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300"
               data-testid={`practice-card-${practice.id}`}
             >
-              <div className="practice-image-container">
+              <div className="aspect-[4/3] overflow-hidden">
                 <img
                   src={practice.image}
                   alt={practice.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <div className="p-6">
-                <h3 className="font-display text-2xl text-charcoal mb-3">{practice.title}</h3>
+                <h3 className="font-display text-xl text-charcoal mb-2">{practice.title}</h3>
                 <p className="text-charcoal/60 text-sm leading-relaxed">{practice.description}</p>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Corporate & Children - Link to Contact */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <a 
+            href="#contact"
+            className="block p-6 bg-sage-500/10 rounded-lg border border-sage-500/20 hover:bg-sage-500/20 transition-colors"
+            data-testid="corporate-link"
+          >
+            <h3 className="font-display text-xl text-charcoal mb-2">Corporate / Private Sessions</h3>
+            <p className="text-charcoal/60 text-sm">Customized yoga programs for corporate wellness and private groups. Contact us for details.</p>
+          </a>
+          <a 
+            href="#contact"
+            className="block p-6 bg-terracotta-500/10 rounded-lg border border-terracotta-500/20 hover:bg-terracotta-500/20 transition-colors"
+            data-testid="children-link"
+          >
+            <h3 className="font-display text-xl text-charcoal mb-2">Yoga for Children</h3>
+            <p className="text-charcoal/60 text-sm">Age-appropriate yoga practices for children. Contact us for batch timings.</p>
+          </a>
         </div>
       </div>
     </section>
   );
 };
 
-// Intention Section
-const IntentionSection = ({ settings, programs }) => {
+// FAQ Section
+const FAQSection = () => {
+  const faqs = [
+    {
+      question: "I am a beginner. Can I learn these practices?",
+      answer: "Yes. You do not require any previous experience in Yoga. We have classes and workshops for all levels."
+    },
+    {
+      question: "What is the difference between workshops and everyday sessions?",
+      answer: "We teach the practices with the tiniest details in a workshop. Once you've learned them, you do them daily, refining your postures and receiving individual corrections and modifications in guided classes in the presence of a teacher."
+    },
+    {
+      question: "Why Classical Hatha Yoga?",
+      answer: "Classical Hatha Yoga sets itself apart with its authentic lineage and meticulous teaching in a focused environment, emphasizing quality practices. It upholds classical traditions, adheres to punctuality, and avoids distractions, maintaining a dedicated space for transformative, detail-oriented learning. Its uniqueness lies in a structured sequence tailored to individual needs, ensuring a profound and purposeful yogic experience. Rooted in the profound wisdom of Sadhguru, the founder of Isha Foundation, it goes beyond physical postures, addressing the inner dimensions of one's being."
+    },
+    {
+      question: "Is Inner Engineering mandatory to learn Hatha Yoga?",
+      answer: "No. You can start with any of the Classical Hatha Yoga practices — Upa Yoga, Surya Kriya, Angamardana, Yogasanas, Surya Shakti, Bhuta Shuddhi, or Mantra Yoga."
+    }
+  ];
+
   return (
-    <section id="intention" className="py-24 md:py-32 bg-sand-100" data-testid="intention-section">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
-          {/* Teacher Image */}
-          <div className="md:col-span-4">
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1762950887957-78d2cc56d88c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjB5b2dhJTIwdGVhY2hlciUyMHBvcnRyYWl0JTIwc2VyZW5lJTIwc3Bpcml0dWFsfGVufDB8fHx8MTc3MzQyMjIwMnww&ixlib=rb-4.1.0&q=85"
-                alt="Yoga Teacher"
-                className="teacher-portrait w-full grayscale hover:grayscale-0 transition-all duration-500"
-                data-testid="teacher-image"
-              />
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="md:col-span-8">
-            <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-6" data-testid="intention-title">
-              The Intention
-            </h2>
-            <blockquote className="text-charcoal/80 text-base md:text-lg leading-relaxed mb-8 italic border-l-4 border-terracotta-500 pl-6">
-              "My endeavor is to bring the purity of classical yoga to those seeking a deeper transformation
-              beyond physical stretching. The goal is to offer these tools in their absolute pristine form."
-            </blockquote>
-
-            {/* Location Info */}
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center gap-3" data-testid="location-current">
-                <MapPin className="w-5 h-5 text-terracotta-500" />
-                <span className="text-charcoal/70">Currently teaching in <strong>{settings?.location || 'Pune'}</strong>, Maharashtra.</span>
-              </div>
-              {programs && programs.length > 0 && (
-                <div className="flex items-center gap-3" data-testid="upcoming-programs">
-                  <ArrowRight className="w-5 h-5 text-sage-500" />
-                  <span className="text-charcoal/70">
-                    Upcoming sessions in <strong>{programs[0]?.location}</strong>. {programs[0]?.date}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-2 bg-terracotta-500 hover:bg-terracotta-600 text-white px-8 py-3.5 rounded-full font-medium transition-all duration-300"
-              data-testid="register-btn"
-            >
-              Register for a Session
-              <ArrowRight className="w-4 h-4" />
-            </a>
-          </div>
+    <section id="faq" className="py-24 md:py-32 bg-sand-100" data-testid="faq-section">
+      <div className="max-w-3xl mx-auto px-6 md:px-12">
+        <div className="text-center mb-16">
+          <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-4">
+            Frequently Asked Questions
+          </h2>
         </div>
+
+        <Accordion type="single" collapsible className="space-y-4">
+          {faqs.map((faq, index) => (
+            <AccordionItem 
+              key={index} 
+              value={`item-${index}`}
+              className="bg-white rounded-lg border border-sand-200 px-6"
+              data-testid={`faq-item-${index}`}
+            >
+              <AccordionTrigger className="text-left font-display text-lg text-charcoal py-5 hover:no-underline">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="text-charcoal/70 leading-relaxed pb-5">
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </section>
   );
@@ -431,7 +583,6 @@ const ContactSection = ({ settings }) => {
       await axios.post(`${API}/brochure/download`, { name: brochureName, email: brochureEmail });
       toast.success('Thank you! Your brochure is downloading...');
       
-      // Download the actual brochure file
       const link = document.createElement('a');
       link.href = `${API}/brochure/file`;
       link.download = 'HathaPath-Brochure.pdf';
@@ -451,13 +602,12 @@ const ContactSection = ({ settings }) => {
   return (
     <section id="contact" className="py-24 md:py-32 bg-white" data-testid="contact-section">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-4" data-testid="contact-title">
-            Learn or Get in Touch
+          <h2 className="font-display text-4xl md:text-5xl text-charcoal mb-4">
+            Contact Us
           </h2>
           <p className="text-charcoal/60 text-base md:text-lg">
-            We would love to hear from you. Start your journey today.
+            Start your journey today.
           </p>
         </div>
 
@@ -511,30 +661,26 @@ const ContactSection = ({ settings }) => {
             </form>
           </div>
 
-          {/* Quick Contact & Brochure */}
+          {/* Quick Contact */}
           <div className="space-y-6">
-            <div className="contact-card rounded-2xl p-6">
-              <h3 className="font-display text-xl text-charcoal mb-4" data-testid="quick-contact-title">Quick Contact</h3>
-              <p className="text-charcoal/60 text-sm mb-6">
-                Prefer direct communication? Reach via WhatsApp or follow our journey on Instagram for daily inspiration.
-              </p>
+            <div className="bg-sand-50 rounded-2xl p-6 border border-sand-200">
+              <h3 className="font-display text-xl text-charcoal mb-6">Quick Contact</h3>
 
               {/* WhatsApp */}
               <a
                 href={`https://wa.me/${settings?.whatsapp?.replace(/\D/g, '') || '919876543210'}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-xl mb-3 transition-colors group"
+                className="flex items-center gap-4 p-4 bg-green-50 hover:bg-green-100 rounded-xl mb-3 transition-colors"
                 data-testid="whatsapp-link"
               >
-                <div className="flex items-center gap-3">
-                  <MessageCircle className="w-5 h-5 text-green-600" />
-                  <div>
-                    <p className="font-medium text-green-700">Message on WhatsApp</p>
-                    <p className="text-xs text-green-600">Get a response in 24 hours</p>
-                  </div>
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                  <WhatsAppIcon className="w-6 h-6 text-white" />
                 </div>
-                <ArrowRight className="w-4 h-4 text-green-600 group-hover:translate-x-1 transition-transform" />
+                <div>
+                  <p className="font-medium text-green-700">WhatsApp</p>
+                  <p className="text-sm text-green-600">{settings?.whatsapp || '+91 98765 43210'}</p>
+                </div>
               </a>
 
               {/* Instagram */}
@@ -542,35 +688,35 @@ const ContactSection = ({ settings }) => {
                 href={`https://instagram.com/${settings?.instagram || 'hatha_path'}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between p-4 bg-pink-50 hover:bg-pink-100 rounded-xl mb-3 transition-colors group"
+                className="flex items-center gap-4 p-4 bg-pink-50 hover:bg-pink-100 rounded-xl mb-3 transition-colors"
                 data-testid="instagram-link"
               >
-                <div className="flex items-center gap-3">
-                  <Instagram className="w-5 h-5 text-pink-600" />
-                  <div>
-                    <p className="font-medium text-pink-700">Follow on Instagram</p>
-                    <p className="text-xs text-pink-600">@{settings?.instagram || 'hatha_path'}</p>
-                  </div>
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 rounded-full flex items-center justify-center">
+                  <InstagramIcon className="w-6 h-6 text-white" />
                 </div>
-                <ArrowRight className="w-4 h-4 text-pink-600 group-hover:translate-x-1 transition-transform" />
+                <div>
+                  <p className="font-medium text-pink-700">Instagram</p>
+                  <p className="text-sm text-pink-600">@{settings?.instagram || 'hatha_path'}</p>
+                </div>
               </a>
 
               {/* Location */}
-              <div className="flex items-start gap-3 p-4 bg-sand-50 rounded-xl" data-testid="location-info">
-                <MapPin className="w-5 h-5 text-charcoal/60 mt-0.5" />
+              <div className="flex items-center gap-4 p-4 bg-sand-100 rounded-xl">
+                <div className="w-12 h-12 bg-charcoal rounded-full flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
                 <div>
                   <p className="font-medium text-charcoal">Location</p>
                   <p className="text-sm text-charcoal/60">{settings?.location || 'Pune, Maharashtra, India'}</p>
-                  <p className="text-sm text-charcoal/60">{settings?.location_detail || 'Isha Yoga Center'}</p>
                 </div>
               </div>
             </div>
 
-            {/* Brochure Download */}
-            <div className="contact-card rounded-2xl p-6">
+            {/* Brochure */}
+            <div className="bg-sand-50 rounded-2xl p-6 border border-sand-200">
               <h3 className="font-display text-xl text-charcoal mb-3">Download Brochure</h3>
               <p className="text-charcoal/60 text-sm mb-4">
-                Get detailed information about our programs, schedules, and pricing.
+                Get detailed information about our programs.
               </p>
               <Button
                 onClick={() => setBrochureOpen(true)}
@@ -587,11 +733,11 @@ const ContactSection = ({ settings }) => {
 
       {/* Brochure Dialog */}
       <Dialog open={brochureOpen} onOpenChange={setBrochureOpen}>
-        <DialogContent className="sm:max-w-md" data-testid="brochure-dialog">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Download Brochure</DialogTitle>
             <DialogDescription>
-              Enter your name to download our detailed program brochure.
+              Enter your name to download our program brochure.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
@@ -600,7 +746,6 @@ const ContactSection = ({ settings }) => {
               value={brochureName}
               onChange={(e) => setBrochureName(e.target.value)}
               className="bg-sand-50 border-sand-200 focus:border-terracotta-500 rounded-lg py-3"
-              data-testid="brochure-name-input"
             />
             <Input
               type="email"
@@ -608,14 +753,11 @@ const ContactSection = ({ settings }) => {
               value={brochureEmail}
               onChange={(e) => setBrochureEmail(e.target.value)}
               className="bg-sand-50 border-sand-200 focus:border-terracotta-500 rounded-lg py-3"
-              data-testid="brochure-email-input"
             />
             <Button
               onClick={handleBrochureDownload}
-              className="w-full bg-terracotta-500 hover:bg-terracotta-600 text-white py-3 rounded-full font-medium flex items-center justify-center gap-2"
-              data-testid="brochure-submit-btn"
+              className="w-full bg-terracotta-500 hover:bg-terracotta-600 text-white py-3 rounded-full font-medium"
             >
-              <Download className="w-4 h-4" />
               Download Now
             </Button>
           </div>
@@ -626,43 +768,46 @@ const ContactSection = ({ settings }) => {
 };
 
 // Footer
-const Footer = () => {
+const Footer = ({ settings }) => {
   return (
-    <footer className="footer-gradient py-12" data-testid="footer">
+    <footer className="bg-sand-200 py-12" data-testid="footer">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* Logo - Extra large for visibility */}
-          <div className="flex items-center">
-            <img 
-              src={LOGO_URL} 
-              alt="Hatha Path" 
-              className="h-20 md:h-24 w-auto object-contain"
-              style={{ filter: 'brightness(0.3)' }}
-              data-testid="footer-logo"
-            />
-          </div>
+          {/* Logo */}
+          <img 
+            src={LOGO_URL} 
+            alt="Hatha Path" 
+            className="h-28 md:h-32 w-auto object-contain"
+            style={{ filter: 'brightness(0.3)' }}
+          />
 
           {/* Tagline */}
-          <p className="text-charcoal/60 text-sm italic">
-            Classical Hatha Yoga in its authentic form
+          <p className="text-charcoal/60 text-sm italic font-display text-center">
+            Classical Yoga for Peak Physical Fitness & Mental Wellbeing
           </p>
 
-          {/* Links */}
-          <div className="flex items-center gap-6 text-sm">
-            <a href="https://instagram.com/hatha_path" target="_blank" rel="noopener noreferrer" className="text-charcoal/60 hover:text-terracotta-500 transition-colors" data-testid="footer-instagram">
-              Instagram
+          {/* Social Icons */}
+          <div className="flex items-center gap-4">
+            <a 
+              href={`https://wa.me/${settings?.whatsapp?.replace(/\D/g, '') || '919876543210'}`}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-12 h-12 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors"
+            >
+              <WhatsAppIcon className="w-6 h-6 text-white" />
             </a>
-            <a href="https://youtube.com/@hathapath" target="_blank" rel="noopener noreferrer" className="text-charcoal/60 hover:text-terracotta-500 transition-colors" data-testid="footer-youtube">
-              YouTube
-            </a>
-            <a href="#" className="text-charcoal/60 hover:text-terracotta-500 transition-colors" data-testid="footer-privacy">
-              Privacy
+            <a 
+              href={`https://instagram.com/${settings?.instagram || 'hatha_path'}`}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 hover:opacity-90 rounded-full flex items-center justify-center transition-opacity"
+            >
+              <InstagramIcon className="w-6 h-6 text-white" />
             </a>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-8 pt-6 border-t border-sand-200 text-center">
+        <div className="mt-8 pt-6 border-t border-sand-300 text-center">
           <p className="text-charcoal/50 text-sm">
             © {new Date().getFullYear()} Hatha Path. Made with dedication to the path.
           </p>
@@ -672,20 +817,16 @@ const Footer = () => {
   );
 };
 
-// Main Landing Page Component
+// Main Landing Page
 const LandingPage = () => {
   const [settings, setSettings] = useState(null);
-  const [programs, setPrograms] = useState([]);
 
   useEffect(() => {
+    trackVisit();
     const fetchData = async () => {
       try {
-        const [settingsRes, programsRes] = await Promise.all([
-          axios.get(`${API}/settings`),
-          axios.get(`${API}/programs/active`),
-        ]);
+        const settingsRes = await axios.get(`${API}/settings`);
         setSettings(settingsRes.data);
-        setPrograms(programsRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -695,13 +836,13 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-sand-100" data-testid="landing-page">
-      <Header />
+      <Header settings={settings} />
       <HeroSection />
       <AboutSection />
       <PracticesSection />
-      <IntentionSection settings={settings} programs={programs} />
+      <FAQSection />
       <ContactSection settings={settings} />
-      <Footer />
+      <Footer settings={settings} />
     </div>
   );
 };

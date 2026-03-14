@@ -18,7 +18,7 @@ import shutil
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Create uploads directory for brochures
+# Create uploads directory
 UPLOADS_DIR = ROOT_DIR / 'uploads'
 UPLOADS_DIR.mkdir(exist_ok=True)
 
@@ -31,21 +31,13 @@ db = client[os.environ['DB_NAME']]
 JWT_SECRET = os.environ.get('JWT_SECRET', 'hatha-path-secret-key-2024')
 JWT_ALGORITHM = "HS256"
 
-# Create the main app without a prefix
 app = FastAPI()
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
-
 security = HTTPBearer()
 
 # ============ Models ============
 
 class AdminLogin(BaseModel):
-    username: str
-    password: str
-
-class AdminCreate(BaseModel):
     username: str
     password: str
 
@@ -60,7 +52,7 @@ class SiteSettings(BaseModel):
     instagram: str = "hatha_path"
     email: str = "contact@hathapath.com"
     location: str = "Pune, Maharashtra, India"
-    location_detail: str = "Isha Yoga Center, Coimbatore"
+    location_detail: str = ""
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class SiteSettingsUpdate(BaseModel):
@@ -69,6 +61,30 @@ class SiteSettingsUpdate(BaseModel):
     email: Optional[str] = None
     location: Optional[str] = None
     location_detail: Optional[str] = None
+
+class Workshop(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    dates: str
+    image: str = ""
+    is_active: bool = True
+    order: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class WorkshopCreate(BaseModel):
+    title: str
+    dates: str
+    image: str = ""
+    is_active: bool = True
+    order: int = 0
+
+class WorkshopUpdate(BaseModel):
+    title: Optional[str] = None
+    dates: Optional[str] = None
+    image: Optional[str] = None
+    is_active: Optional[bool] = None
+    order: Optional[int] = None
 
 class Program(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -120,12 +136,20 @@ class ContactSubmissionCreate(BaseModel):
     email: str
     message: str
 
+class Analytics(BaseModel):
+    total_visits: int
+    total_downloads: int
+    total_contacts: int
+    visits_today: int
+    visits_this_week: int
+    visits_this_month: int
+
 # ============ Auth Helpers ============
 
 def create_token(username: str) -> str:
     payload = {
         "username": username,
-        "exp": datetime.now(timezone.utc).timestamp() + 86400  # 24 hours
+        "exp": datetime.now(timezone.utc).timestamp() + 86400
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
@@ -160,7 +184,6 @@ async def admin_login(data: AdminLogin):
 
 @api_router.post("/admin/setup")
 async def setup_admin():
-    """Setup default admin - call once"""
     existing = await db.admins.find_one({"username": "admin"}, {"_id": 0})
     if existing:
         return {"message": "Admin already exists"}
@@ -183,7 +206,6 @@ async def verify_admin(username: str = Depends(verify_token)):
 async def get_settings():
     settings = await db.settings.find_one({}, {"_id": 0})
     if not settings:
-        # Create default settings
         default_settings = SiteSettings()
         doc = default_settings.model_dump()
         doc['updated_at'] = doc['updated_at'].isoformat()
@@ -198,11 +220,57 @@ async def get_settings():
 async def update_settings(data: SiteSettingsUpdate, username: str = Depends(verify_token)):
     update_data = {k: v for k, v in data.model_dump().items() if v is not None}
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
-    
     await db.settings.update_one({}, {"$set": update_data}, upsert=True)
     return await get_settings()
 
-# Programs
+# Workshops
+@api_router.get("/workshops", response_model=List[Workshop])
+async def get_workshops():
+    workshops = await db.workshops.find({"is_active": True}, {"_id": 0}).sort("order", 1).to_list(100)
+    for w in workshops:
+        if isinstance(w.get('created_at'), str):
+            w['created_at'] = datetime.fromisoformat(w['created_at'])
+    return workshops
+
+@api_router.get("/workshops/all", response_model=List[Workshop])
+async def get_all_workshops(username: str = Depends(verify_token)):
+    workshops = await db.workshops.find({}, {"_id": 0}).sort("order", 1).to_list(100)
+    for w in workshops:
+        if isinstance(w.get('created_at'), str):
+            w['created_at'] = datetime.fromisoformat(w['created_at'])
+    return workshops
+
+@api_router.post("/workshops", response_model=Workshop)
+async def create_workshop(data: WorkshopCreate, username: str = Depends(verify_token)):
+    workshop = Workshop(**data.model_dump())
+    doc = workshop.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.workshops.insert_one(doc)
+    return workshop
+
+@api_router.put("/workshops/{workshop_id}", response_model=Workshop)
+async def update_workshop(workshop_id: str, data: WorkshopUpdate, username: str = Depends(verify_token)):
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    result = await db.workshops.update_one({"id": workshop_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Workshop not found")
+    
+    workshop = await db.workshops.find_one({"id": workshop_id}, {"_id": 0})
+    if isinstance(workshop.get('created_at'), str):
+        workshop['created_at'] = datetime.fromisoformat(workshop['created_at'])
+    return Workshop(**workshop)
+
+@api_router.delete("/workshops/{workshop_id}")
+async def delete_workshop(workshop_id: str, username: str = Depends(verify_token)):
+    result = await db.workshops.delete_one({"id": workshop_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Workshop not found")
+    return {"message": "Workshop deleted"}
+
+# Programs (kept for backwards compatibility)
 @api_router.get("/programs", response_model=List[Program])
 async def get_programs():
     programs = await db.programs.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
@@ -249,6 +317,43 @@ async def delete_program(program_id: str, username: str = Depends(verify_token))
         raise HTTPException(status_code=404, detail="Program not found")
     return {"message": "Program deleted"}
 
+# Analytics - Track visits
+@api_router.post("/analytics/visit")
+async def track_visit():
+    visit = {
+        "id": str(uuid.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    }
+    await db.visits.insert_one(visit)
+    return {"success": True}
+
+@api_router.get("/analytics", response_model=Analytics)
+async def get_analytics(username: str = Depends(verify_token)):
+    from datetime import timedelta
+    
+    now = datetime.now(timezone.utc)
+    today = now.strftime("%Y-%m-%d")
+    week_ago = (now - timedelta(days=7)).isoformat()
+    month_ago = (now - timedelta(days=30)).isoformat()
+    
+    total_visits = await db.visits.count_documents({})
+    total_downloads = await db.brochure_downloads.count_documents({})
+    total_contacts = await db.contact_submissions.count_documents({})
+    
+    visits_today = await db.visits.count_documents({"date": today})
+    visits_this_week = await db.visits.count_documents({"timestamp": {"$gte": week_ago}})
+    visits_this_month = await db.visits.count_documents({"timestamp": {"$gte": month_ago}})
+    
+    return Analytics(
+        total_visits=total_visits,
+        total_downloads=total_downloads,
+        total_contacts=total_contacts,
+        visits_today=visits_today,
+        visits_this_week=visits_this_week,
+        visits_this_month=visits_this_month
+    )
+
 # Brochure Downloads
 @api_router.post("/brochure/download", response_model=BrochureDownload)
 async def record_brochure_download(data: BrochureDownloadCreate):
@@ -266,36 +371,16 @@ async def get_brochure_downloads(username: str = Depends(verify_token)):
             d['downloaded_at'] = datetime.fromisoformat(d['downloaded_at'])
     return downloads
 
-# Contact Form
-@api_router.post("/contact", response_model=ContactSubmission)
-async def submit_contact(data: ContactSubmissionCreate):
-    submission = ContactSubmission(**data.model_dump())
-    doc = submission.model_dump()
-    doc['created_at'] = doc['created_at'].isoformat()
-    await db.contact_submissions.insert_one(doc)
-    return submission
-
-@api_router.get("/contact/submissions", response_model=List[ContactSubmission])
-async def get_contact_submissions(username: str = Depends(verify_token)):
-    submissions = await db.contact_submissions.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
-    for s in submissions:
-        if isinstance(s.get('created_at'), str):
-            s['created_at'] = datetime.fromisoformat(s['created_at'])
-    return submissions
-
 # Brochure Upload
 @api_router.post("/brochure/upload")
 async def upload_brochure(file: UploadFile = File(...), username: str = Depends(verify_token)):
-    # Validate file type
     if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
     
-    # Save file
     file_path = UPLOADS_DIR / "brochure.pdf"
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # Update brochure info in database
     brochure_info = {
         "filename": file.filename,
         "uploaded_at": datetime.now(timezone.utc).isoformat(),
@@ -330,7 +415,24 @@ async def download_brochure():
         media_type="application/pdf"
     )
 
-# Include the router in the main app
+# Contact Form
+@api_router.post("/contact", response_model=ContactSubmission)
+async def submit_contact(data: ContactSubmissionCreate):
+    submission = ContactSubmission(**data.model_dump())
+    doc = submission.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.contact_submissions.insert_one(doc)
+    return submission
+
+@api_router.get("/contact/submissions", response_model=List[ContactSubmission])
+async def get_contact_submissions(username: str = Depends(verify_token)):
+    submissions = await db.contact_submissions.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    for s in submissions:
+        if isinstance(s.get('created_at'), str):
+            s['created_at'] = datetime.fromisoformat(s['created_at'])
+    return submissions
+
+# Include router
 app.include_router(api_router)
 
 app.add_middleware(
@@ -341,7 +443,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
