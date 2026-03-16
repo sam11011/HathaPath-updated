@@ -1,0 +1,184 @@
+/* Hatha Path Custom Styles */
+
+/* Hero Video Overlay */
+.hero-overlay {
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.2) 50%,
+        rgba(244, 239, 232, 0.9) 100%
+    );
+}
+
+/* Navigation styles */
+.nav-link {
+    position: relative;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #C66B4D;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Section styles */
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+}
+
+/* Card styles */
+.card-hover {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* Image styles */
+.image-zoom {
+    overflow: hidden;
+}
+
+.image-zoom img {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-zoom:hover img {
+    transform: scale(1.05);
+}
+
+/* Button animations */
+.btn-animate {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-animate::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-animate:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Form input focus */
+.input-focus {
+    transition: all 0.3s ease;
+}
+
+.input-focus:focus {
+    border-color: #C66B4D;
+    box-shadow: 0 0 0 3px rgba(198, 107, 77, 0.1);
+}
+
+/* Scroll reveal animation */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Footer gradient */
+.footer-gradient {
+    background: linear-gradient(
+        to bottom,
+        #F4EFE8 0%,
+        #E6E0D9 100%
+    );
+}
+
+/* Contact card styles */
+.contact-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(214, 206, 197, 0.5);
+}
+
+/* Practice card image container */
+.practice-image-container {
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    border-radius: 1rem;
+}
+
+/* Teacher portrait */
+.teacher-portrait {
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile menu */
+.mobile-menu {
+    backdrop-filter: blur(20px);
+    background: rgba(244, 239, 232, 0.95);
+}
+
+/* Admin panel styles */
+.admin-sidebar {
+    background: linear-gradient(
+        to bottom,
+        #2C2E2D 0%,
+        #44403C 100%
+    );
+}
+
+.admin-card {
+    background: white;
+    border: 1px solid #E6E0D9;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Table styles */
+.table-row-hover {
+    transition: background-color 0.2s ease;
+}
+
+.table-row-hover:hover {
+    background-color: rgba(111, 144, 133, 0.05);
+}
+
+/* Toast customization */
+[data-sonner-toast] {
+    font-family: 'Manrope', sans-serif;
+}
+
+/* Stats card */
+.stats-card {
+    background: linear-gradient(
+        135deg,
+        rgba(111, 144, 133, 0.1) 0%,
+        rgba(198, 107, 77, 0.1) 100%
+    );
+    border: 1px solid rgba(214, 206, 197, 0.5);
+}
